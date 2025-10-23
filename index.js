@@ -1,11 +1,15 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
 const PORT = 3010;
 
 app.use(bodyParser.json());
+
+// ✅ Serve static files (like index.html) from "public" folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Create MySQL connection
 const db = mysql.createConnection({
@@ -24,17 +28,17 @@ db.connect(err => {
     console.log('✅ Connected to MySQL');
 });
 
-// Home Route
+// ✅ Home Route (Serve index.html)
 app.get('/', (req, res) => {
-    res.send('Server is Running');
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Route: Insert Data
+// ✅ Insert Data Route
 app.get('/InsertData/:data', (req, res) => {
     const { data } = req.params;
 
     if (!data) {
-        return res.status(400).json({ error: 'Name and email are required' });
+        return res.status(400).json({ error: 'Data is required' });
     }
 
     const sql = 'INSERT INTO test (data) VALUES (?)';
@@ -43,23 +47,22 @@ app.get('/InsertData/:data', (req, res) => {
             console.error('❌ Insert error:', err);
             return res.status(500).json({ error: 'Failed to insert data' });
         }
-        res.status(201).json({ message: '✅ User created', userId: result.insertId });
+        res.status(201).json({ message: '✅ Data inserted', id: result.insertId });
     });
 });
 
-
-// Route: Get All Users
+// ✅ Get All Data Route
 app.get('/getData', (req, res) => {
     const sql = 'SELECT * FROM test';
     db.query(sql, (err, results) => {
         if (err) {
             console.error('❌ Select error:', err);
-            return res.status(500).json({ error: 'Failed to fetch users' });
+            return res.status(500).json({ error: 'Failed to fetch data' });
         }
         res.json(results);
     });
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server is running at http://localhost:${PORT}`);
+    console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

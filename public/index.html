@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoT Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f4f4f4;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: center; /* ✅ Center align both headers and data */
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+  </style>
+</head>
+<body>
+  <h2>IoT Dashboard</h2>
+
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Value</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+
+  <script>
+    // Function to load data from backend
+    async function loadData() {
+      try {
+        const response = await fetch('/getData');
+        const data = await response.json();
+
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="2" style="text-align:center;">No data available</td></tr>';
+          return;
+        }
+
+        // Create table rows dynamically
+        data.forEach(row => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${row.n_id}</td>
+            <td>${row.data}</td>
+          `;
+          tableBody.appendChild(tr);
+        });
+
+      } catch (err) {
+        console.error('❌ Error loading data:', err);
+      }
+    }
+
+    // ✅ Automatically load data when page loads
+    window.onload = loadData;
+  </script>
+</body>
+</html>
